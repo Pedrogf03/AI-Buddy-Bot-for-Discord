@@ -80,7 +80,9 @@ class DiscordBot:
                 )
 
                 # 4. Enviar (con paginación simple)
-                if len(respuesta) > 2000:
+                if len(respuesta) > 4000:
+                    await message.channel.send("😢 No he podido generar una respuesta adecuada.")
+                elif len(respuesta) > 2000:
                     for i in range(0, len(respuesta), 1900):
                         await message.channel.send(respuesta[i:i+1900])
                 else:
