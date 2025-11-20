@@ -27,7 +27,7 @@ El objetivo es demostrar una arquitectura de chat eficiente, modular y de coste 
 
 No necesitas instalar código para ver funcionar a **AI-Buddy**. Puedes invitar al bot directamente a tu servidor de Discord y empezar a chatear.
 
-[![Invitar a Discord](https://img.shields.io/badge/Discord-Invitar%20AI--Buddy-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/oauth2/authorize?client_id=1441091789959336058)
+[![Invitar a Discord](https://img.shields.io/badge/Discord-Invitar%20AI--Buddy-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/oauth2/authorize?client_id=1441091789959336058&permissions=67584&integration_type=0&scope=bot)
 
 ### ¿Cómo usarlo?
 1. Haz clic en el botón de arriba y autoriza al bot en tu servidor.
