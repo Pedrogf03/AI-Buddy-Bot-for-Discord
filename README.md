@@ -1,12 +1,12 @@
 # 🤖 AI-Buddy: Hybrid AI Discord Assistant
 
-[![Discord](https://img.shields.io/badge/Discord-Invite_Bot-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/oauth2/authorize?client_id=TU_CLIENT_ID_AQUI&permissions=67584&integration_type=0&scope=bot)
+[![Discord](https://img.shields.io/badge/Discord-Invite_Bot-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/oauth2/authorize?client_id=1441091789959336058&permissions=67584&integration_type=0&scope=bot)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![LangChain](https://img.shields.io/badge/LangChain-Core-green?style=for-the-badge)](https://www.langchain.com/)
 [![Groq](https://img.shields.io/badge/Powered_by-Groq-orange?style=for-the-badge)](https://groq.com/)
 [![Gemini](https://img.shields.io/badge/Powered_by-Gemini-8E75B2?style=for-the-badge&logo=google-gemini&logoColor=white)](https://deepmind.google/technologies/gemini/)
 
-**AI-Buddy** es un asistente conversacional avanzado y modular para Discord. A diferencia de los bots básicos, AI-Buddy utiliza una arquitectura híbrida basada en **LangChain** que permite alternar entre la velocidad extrema de **Llama 3.3 (vía Groq)** y la capacidad multimodal de **Gemini 1.5 Flash (vía Google)**.
+**AI-Buddy** es un asistente conversacional avanzado y modular para Discord. A diferencia de los bots básicos, AI-Buddy utiliza una arquitectura híbrida basada en **LangChain** que permite alternar entre la velocidad extrema de **Llama 3.3 (vía Groq)** y la capacidad multimodal de **Gemini 2.5 Flash Preview (vía Google)**.
 
 El proyecto implementa buenas prácticas de ingeniería de software (OOP), gestión de memoria conversacional y manejo robusto de errores de API.
 
@@ -92,6 +92,6 @@ Una vez el bot esté en línea:
 
 - Continuar la charla: Usa la función "Responder" (Reply) de Discord sobre el mensaje del bot. No hace falta volver a mencionarlo; él leerá el contexto.
 
-- Personalidad: Puedes modificar el archivo utils/prompt.txt para cambiar cómo se comporta el bot sin tocar el código.
+- Personalidad: Puedes modificar el archivo utils/prompt_manager.py para cambiar cómo se comporta el bot.
 
 _Desarrollado con ❤️, Python y LangChain._
