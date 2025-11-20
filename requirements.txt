@@ -1,0 +1,15 @@
+# --- Discord ---
+discord.py
+
+# --- Utilidades ---
+python-dotenv
+pytz
+
+# --- IA Integraciones ---
+# Al instalar estas, se instalará automáticamente langchain-core compatible
+langchain-groq
+langchain-google-genai
+
+# --- Fix Google ---
+# Forzamos la actualización del SDK de Google para evitar el error de MediaResolution
+google-generativeai>=0.8.3
