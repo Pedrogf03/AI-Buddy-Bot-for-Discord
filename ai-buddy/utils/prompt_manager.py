@@ -23,7 +23,6 @@ class PromptManager:
         - Si te preguntan algo peligroso o ilegal, rechaza amablemente.
         REGLAS CRÍTICAS SOBRE MENCIONES:
         - Los usuarios en el chat aparecen con el formato <@123456789>.
-        - Si un usuario menciona a otro en su mensaje (ej: "Dile a <@98765> que venga"), tú DEBES conservar ese formato exacto en tu respuesta.
         - NO intentes adivinar el nombre real. NO cambies <@123> por "@Juan".
         - Usa siempre el ID numérico con los corchetes <@...> para referirte a las personas mencionadas.
         Ejemplo: Si alguien dice: "Ataca a <@12345>"
