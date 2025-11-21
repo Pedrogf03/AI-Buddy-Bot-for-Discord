@@ -1,97 +1,79 @@
-# 🤖 AI-Buddy: Hybrid AI Discord Assistant
+# 🤖 AI-Buddy
 
-[![Discord](https://img.shields.io/badge/Discord-Invite_Bot-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/oauth2/authorize?client_id=1441091789959336058&permissions=67584&integration_type=0&scope=bot)
-[![Python](https://img.shields.io/badge/Python-3.10%2B-blue?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![LangChain](https://img.shields.io/badge/LangChain-Core-green?style=for-the-badge)](https://www.langchain.com/)
-[![Groq](https://img.shields.io/badge/Powered_by-Groq-orange?style=for-the-badge)](https://groq.com/)
-[![Gemini](https://img.shields.io/badge/Powered_by-Gemini-8E75B2?style=for-the-badge&logo=google-gemini&logoColor=white)](https://deepmind.google/technologies/gemini/)
+![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?logo=docker&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)
+![Privacy](https://img.shields.io/badge/Privacy-Ephemeral-orange)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-**AI-Buddy** es un asistente conversacional avanzado y modular para Discord. A diferencia de los bots básicos, AI-Buddy utiliza una arquitectura híbrida basada en **LangChain** que permite alternar entre la velocidad extrema de **Llama 3.3 (vía Groq)** y la capacidad multimodal de **Gemini 2.5 Flash Preview (vía Google)**.
+> Un bot de Discord potenciado por IA, diseñado para ser desplegado fácilmente con Docker y respetando la privacidad del usuario.
 
-El proyecto implementa buenas prácticas de ingeniería de software (OOP), gestión de memoria conversacional y manejo robusto de errores de API.
-
-## 🚀 Características Principales
-
-- **⚡ Arquitectura Híbrida:**
-  - **Modo Groq (LPU):** Inferencia casi instantánea para conversaciones fluidas usando Llama 3.
-  - **Modo Gemini:** Capacidad de procesamiento robusta con gran ventana de contexto.
-- **🧠 Memoria Contextual:** El bot "recuerda" el hilo de la conversación leyendo los últimos mensajes del canal, permitiendo interacciones naturales.
-- **🛡️ Smart Activation:** Solo responde a menciones (`@AI-Buddy`) o respuestas directas (Replies), evitando el spam en el chat general.
-- **🔧 Sistema Modular:** Código estructurado en clases (`BaseModel`, `GroqModel`, `GeminiModel`) para facilitar la escalabilidad.
-- **📄 Paginación Automática:** Maneja respuestas largas dividiéndolas inteligentemente para respetar el límite de 2000 caracteres de Discord.
+[![Invitar al Bot](https://img.shields.io/badge/Discord-Invitar_al_Servidor-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/oauth2/authorize?client_id=1441091789959336058&permissions=67584&integration_type=0&scope=bot)
 
 ---
 
-## 🛠️ Instalación y Despliegue
+## 📖 Descripción
 
-Sigue estos pasos para ejecutar tu propia instancia del bot en local.
+**AI-Buddy** es una integración inteligente para Discord que utiliza un modelo de IA de Groq o Gemini para conversar con los usuarios de forma natural.
 
-### 1. Prerrequisitos
-- Python 3.10 o superior.
-- Una cuenta y token de Bot en [Discord Developer Portal](https://discord.com/developers/applications).
-- API Keys de [GroqConsole](https://console.groq.com/) y/o [Google AI Studio](https://aistudio.google.com/).
+El proyecto está diseñado bajo la filosofía **"Privacy First"** y la simplicidad de despliegue. Todo el entorno está contenerizado con Docker, lo que permite ponerlo en marcha en cualquier servidor en cuestión de segundos.
 
-### 2. Clonar el repositorio
+## ✨ Características
+
+* **🐳 Dockerizado:** Listo para desplegar sin preocuparse por dependencias de Python o versiones del sistema operativo.
+* **🧠 Contexto Efímero:** Mantiene una "memoria corta" de los últimos 10 mensajes para mantener el hilo de la conversación.
+* **🔒 Privacidad Total:** No utiliza bases de datos. La información se procesa en memoria volátil y se descarta inmediatamente después de responder.
+* **⚡ Respuesta a Eventos:** Sistema robusto de escucha de mensajes optimizado para evitar latencia.
+
+## 🚀 Despliegue Rápido (Docker)
+
+Para ejecutar este bot, solo necesitas tener [Docker](https://www.docker.com/) instalado.
+
+### 1. Clonar y Configurar
+Descarga el repositorio y configura las variables de entorno.
+
 ```bash
 git clone https://github.com/Pedrogf03/AI-Buddy-Bot-for-Discord
 cd AI-Buddy-Bot-for-Discord
 ```
 
-### 3. Configurar el Entorno Virtual
-Es altamente recomendable usar un entorno virtual para aislar las dependencias.
-
-```Bash
-# En Windows
-python -m venv venv
-.\venv\Scripts\activate
-
-# En macOS/Linux
-python3 -m venv venv
-source venv/bin/activate
+Crea un archivo ``.env`` en la raíz (puedes copiar el ejemplo):
+```# Archivo .env
+DISCORD_TOKEN=pega_aqui_tu_token_de_discord
+GROQ_API_KEY=pega_aqui_tu_api_key
+GOOGLE_API_KEY=pega_aqui_tu_api_key
 ```
 
-### 4. Instalar Dependencias
-```Bash
-pip install -r requirements.txt
-```
-### 5. Configuración de Variables (.env)
-Crea un archivo llamado .env en la raíz del proyecto y pega tus credenciales:
+### 2. Construir y Lanzar
+Una vez configurado el ``.env``, simplemente lanza el contenedor:
 
-```bash
-DISCORD_TOKEN=tu_token_de_discord_aqui
-GROQ_API_KEY=tu_api_key_de_groq_aqui
-GOOGLE_API_KEY=tu_api_key_de_google_aqui
 ```
-### 6. Ejecutar el Bot
-Por defecto, el bot iniciará usando Groq. Puedes cambiar el proveedor en main.py.
-
-```Bash
-python main.py
+docker-compose up -d --build
 ```
 
-## ⚙️ Estructura del Proyecto
-```Plaintext
-AI-Buddy-Bot/
-├── models/               # Lógica de los LLMs (Patrón Strategy)
-│   ├── base_model.py     # Clase abstracta para estandarizar modelos
-│   ├── groq_model.py     # Implementación de Llama 3.3
-│   └── gemini_model.py   # Implementación de Google Gemini
-├── utils/
-│   ├── prompt_manager.py # Gestor de System Prompts y limpieza de texto
-├── discord_bot.py        # Lógica del cliente de Discord y eventos
-├── main.py               # Punto de entrada y carga de entorno
-└── requirements.txt      # Dependencias del proyecto
-```
+¡Listo! El bot debería estar online. Puedes ver los logs con ``docker logs -f ai-buddy``.
 
-## 📖 Guía de Uso
-Una vez el bot esté en línea:
+## 🛠️ Tecnologías
+- **Lenguaje**: Python
 
-- Iniciar una charla: Menciona al bot para hacer una pregunta.
+- **Contenerización**: Docker
 
-    ```Usuario: @AI-Buddy ¿Cuál es la diferencia entre async y sync en Python?```
+- **Librerías**: 
+  - discord.py
+  - python-dotenv
+  - pytz
+  - langchain-groq
+  - langchain-google-genai
+  - google-generativeai
 
-- Continuar la charla: Usa la función "Responder" (Reply) de Discord sobre el mensaje del bot. No hace falta volver a mencionarlo; él leerá el contexto.
+- **Modelos IA**: 
+  - gemini-2.5-flash-lite
+  - llama-3.3-70b-versatile
 
-- Personalidad: Puedes modificar el archivo utils/prompt_manager.py para cambiar cómo se comporta el bot.
+## ⚖️ Legal
+El uso de este bot implica la aceptación de nuestras políticas, diseñadas para proteger tu privacidad al no almacenar datos persistentemente.
 
-_Desarrollado con ❤️, Python y LangChain._
+- [Términos de Servicio](TERMS.md)
+- [Política de Privacidad](PRIVACY.md)
+
+----
+Desarrollado por Pedrogf03 🖤
