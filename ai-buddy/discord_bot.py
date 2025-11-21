@@ -52,7 +52,11 @@ class DiscordBot:
         is_reply = (message.reference and message.reference.resolved and 
                     message.reference.resolved.author == self.client.user)
 
-        if not (is_mentioned or is_reply):
+        # Lógica de mensaje privado (DM)
+        is_dm = isinstance(message.channel, discord.DMChannel)
+
+        # Si NO es mención, NI respuesta, NI mensaje privado, ignorar.
+        if not (is_mentioned or is_reply or is_dm):
             return
 
         try:
