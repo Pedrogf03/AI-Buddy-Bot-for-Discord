@@ -1,0 +1,11 @@
+services:
+  ai-buddy:
+    build: ./ai-buddy
+    container_name: ai-buddy
+    restart: unless-stopped
+    env_file:
+      - ./ai-buddy/.env
+    volumes:
+      - ./ai-buddy:/app
+    environment:
+      PYTHONUNBUFFERED: 1

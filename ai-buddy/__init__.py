@@ -5,12 +5,10 @@ AI Discord Bot - Un bot de Discord con múltiples modelos de IA
 __version__ = "1.0.0"
 __author__ = "Pedrogf03"
 
-# Importaciones principales para facilitar el acceso
 from .discord_bot import DiscordBot
 from .models import GroqModel, GeminiModel
 from .utils import PromptManager
 
-# Lista de lo que se exporta por defecto
 __all__ = [
     'DiscordBot',
     'GroqModel', 
@@ -18,7 +16,6 @@ __all__ = [
     'PromptManager'
 ]
 
-# Información del paquete
 package_info = {
     "name": "AI Discord Bot",
     "version": __version__,

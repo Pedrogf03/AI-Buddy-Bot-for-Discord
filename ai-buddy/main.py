@@ -6,8 +6,8 @@ def main():
     load_dotenv()
     
     try:
-        # model = "groq"
-        model = "gemini"
+        model = "groq"
+        # model = "gemini"
         
         bot = DiscordBot(model_provider=model)
 
