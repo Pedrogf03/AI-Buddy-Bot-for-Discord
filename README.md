@@ -23,6 +23,7 @@ El proyecto está diseñado bajo la filosofía **"Privacy First"** y la simplici
 - **🧠 Contexto Efímero:** Mantiene una "memoria corta" de los últimos 10 mensajes para mantener el hilo de la conversación.
 - **🔒 Privacidad Total:** No utiliza bases de datos. La información se procesa en memoria volátil y se descarta inmediatamente después de responder.
 - **⚡ Respuesta a Eventos:** Sistema robusto de escucha de mensajes optimizado para evitar latencia.
+- **👀 Buscar en Internet:** Si le pides al bot que busque información en internet, podrá hacerlo utilizando la herramienta de DuckDuckGo Search.
 
 ## 🚀 Despliegue Rápido (Docker)
 
@@ -68,7 +69,11 @@ docker-compose up -d --build
   - pytz
   - langchain-groq
   - langchain-google-genai
-  - google-generativeai
+  - google-generativeai>=0.8.3
+  - duckduckgo-search
+  - langchain
+  - langchain-community
+  - ddgs
 
 - **Modelos IA**:
   - gemini-2.5-flash-lite
