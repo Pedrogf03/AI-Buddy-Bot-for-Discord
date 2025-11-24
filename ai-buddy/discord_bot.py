@@ -32,11 +32,21 @@ class DiscordBot:
 
     def _register_events(self):
         """Registra los eventos de Discord manualmente"""
-        
+            
         @self.client.event
         async def on_ready():
             print(f'✅ Bot conectado como: {self.client.user}')
             print(f'✅ Modelo activo: {self.model_provider.upper()}')
+
+            activity = discord.Activity(
+                type=discord.ActivityType.watching,
+                name="pedrogf03.github.io"
+            )
+
+            await self.client.change_presence(
+                status=discord.Status.online,
+                activity=activity
+            )
 
         @self.client.event
         async def on_message(message):
