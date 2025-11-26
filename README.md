@@ -88,4 +88,6 @@ El uso de este bot implica la aceptación de nuestras políticas, diseñadas par
 
 ---
 
+![Views](https://visitor-badge.laobi.icu/badge?page_id=Pedrogf03.Ai-Buddy-Bot-for-Discord&left_text=Views)
+
 Desarrollado por Pedrogf03 🖤
