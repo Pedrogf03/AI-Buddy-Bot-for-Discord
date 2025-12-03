@@ -50,12 +50,7 @@ El bot utiliza una arquitectura de **Cogs** (extensiones) para mantener el códi
 
 ```text
 ai-buddy/
-├── cogs/
-│   ├── general.py      # Diversión: roast, debate, joke, eli5
-│   ├── media.py        # Multimedia: YouTube, Web Scraping, Imágenes
-│   ├── research.py     # Búsqueda: DuckDuckGo
-│   ├── utility.py      # Herramientas: Traductor, Código
-│   └── help.py         # Sistema de ayuda automático
+├── cogs/               # Lógica de los comandos
 ├── services/           # Lógica de conexión con Groq (LLM)
 ├── utils/              # Herramientas de búsqueda web
 ├── main.py             # Arranque y carga de módulos
@@ -71,14 +66,14 @@ Necesitas las siguientes claves en un archivo `.env`:
 ```env
 DISCORD_TOKEN=tu_token_aqui
 GROQ_API_KEY=tu_api_key_de_groq
-# No se necesitan claves para YouTube ni Imágenes
+# No se necesitan claves para Imágenes
 ```
 
 ### Opción A: Docker (Recomendado)
 
 1.  **Clonar el repo:**
     ```bash
-    git clone [https://github.com/Pedrogf03/AI-Buddy-Bot-for-Discord](https://github.com/Pedrogf03/AI-Buddy-Bot-for-Discord)
+    git clone https://github.com/Pedrogf03/AI-Buddy-Bot-for-Discord
     cd AI-Buddy-Bot-for-Discord
     ```
 2.  **Construir y Correr:**
@@ -95,8 +90,6 @@ GROQ_API_KEY=tu_api_key_de_groq
     pip install -r requirements.txt
     ```
 
-    _(Asegúrate de que tu `requirements.txt` incluye: `discord.py`, `langchain-groq`, `duckduckgo-search`, `youtube-transcript-api`, `beautifulsoup4`, `requests`)_.
-
 2.  **Ejecutar:**
 
     ```bash
@@ -107,16 +100,16 @@ GROQ_API_KEY=tu_api_key_de_groq
 
 - **Core:** Python 3.10+, Discord.py
 - **IA:** Groq Cloud (Llama-3.3-70b)
-- **Web/Media:** DuckDuckGo Search, YouTube Transcript API, BeautifulSoup4.
+- **Web:** DuckDuckGo Search.
 - **Imágenes:** Pollinations.ai API.
 
 ## ⚖️ Legal y Privacidad
 
 El uso de este bot implica la aceptación de nuestras políticas.
 
-- **Privacidad:** No guardamos logs, mensajes ni datos de usuarios. El análisis de webs y videos se realiza en tiempo real y no se almacena.
-- **Responsabilidad:** El desarrollador no se hace responsable del contenido generado por la IA o de las imágenes creadas.
+- [Política de Privacidad](PRIVACY.md)
+- [PTérminos y Condiciones](TERMS.md)
 
 ---
 
-Desarrollado por [Pedrogf03](https://www.google.com/search?q=https://github.com/Pedrogf03) 🖤
+Desarrollado por [Pedrogf03](https://github.com/Pedrogf03) 🖤
