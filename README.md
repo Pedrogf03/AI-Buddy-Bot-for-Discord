@@ -66,7 +66,6 @@ Necesitas las siguientes claves en un archivo `.env`:
 ```env
 DISCORD_TOKEN=tu_token_aqui
 GROQ_API_KEY=tu_api_key_de_groq
-# No se necesitan claves para Imágenes
 ```
 
 ### Opción A: Docker (Recomendado)
