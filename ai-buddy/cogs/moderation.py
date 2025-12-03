@@ -6,8 +6,8 @@ class Moderation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @app_commands.command(name="top_disconnects", description="Muestra un ranking de usuarios que más han desconectado a otros de canales de voz")
-    async def top_disconnects(self, interaction: discord.Interaction):
+    @app_commands.command(name="voice_kicks", description="Muestra un ranking de usuarios que más han desconectado a otros de canales de voz")
+    async def voice_kicks(self, interaction: discord.Interaction):
 
         if not interaction.guild.me.guild_permissions.view_audit_log:
             await interaction.response.send_message("❌ Error: No tengo permiso para ver el 'Registro de Auditoría'.", ephemeral=True)
