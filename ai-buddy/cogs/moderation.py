@@ -19,12 +19,10 @@ class Moderation(commands.Cog):
         stats = {}
 
         try:
-            async for entry in interaction.guild.audit_logs(action=discord.AuditLogAction.member_disconnect, limit=5):
+            async for entry in interaction.guild.audit_logs(action=discord.AuditLogAction.member_disconnect, limit=None):
                 
                 if entry.user is None:
                     continue
-                
-                print(entry.extra.count)
 
                 if entry.user in stats:
                     stats[entry.user]['cantidad'] += entry.extra.count
