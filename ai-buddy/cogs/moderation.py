@@ -21,6 +21,9 @@ class Moderation(commands.Cog):
         try:
             async for entry in interaction.guild.audit_logs(action=discord.AuditLogAction.member_disconnect, limit=1):
                 
+                print(entry)
+                print(entry.extra)
+                
                 if entry.user is None:
                     continue
 
