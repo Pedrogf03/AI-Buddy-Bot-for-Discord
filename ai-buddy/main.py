@@ -24,7 +24,7 @@ class AiBuddy(commands.Bot):
 
     async def on_ready(self):
         print(f'🤖 Conectado como {self.user} (ID: {self.user.id})')
-        await self.change_presence(activity=discord.Game(name="/search o /joke"))
+        await self.change_presence(activity=discord.Game(name="/ask o /help"))
 
 bot = AiBuddy()
 
