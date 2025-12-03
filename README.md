@@ -18,8 +18,6 @@ Utiliza la potencia de **Llama 3 (vía Groq)** para el razonamiento, **DuckDuckG
 ## ✨ Características Principales
 
 - **⚡ Velocidad Extrema:** Respuestas casi instantáneas gracias a la infraestructura de Groq.
-- **📺 Analista de YouTube:** Resume videos enteros, extrae puntos clave y conclusiones sin que tengas que verlos (`/resumen_yt`).
-- **🌍 Lector Web:** Entra en páginas web, lee el contenido y te genera resúmenes ejecutivos (`/analizar_web`).
 - **🎨 Generación de Imágenes:** Crea arte visual al instante usando IA generativa (`/imagine`).
 - **🧠 Entretenimiento Inteligente:** Desde debates filosóficos contra la IA hasta "Roasts" personalizados para tus amigos.
 - **🛡️ Privacidad:** Sin bases de datos. Todo es efímero y se procesa en RAM.
