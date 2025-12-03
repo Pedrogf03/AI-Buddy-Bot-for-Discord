@@ -21,14 +21,11 @@ class Moderation(commands.Cog):
         try:
             async for entry in interaction.guild.audit_logs(action=discord.AuditLogAction.member_disconnect, limit=1):
                 
-                for type in entry:
-                    print(type)
-                
                 if entry.user is None:
                     continue
 
                 moderador = entry.user
-                cantidad = entry.count if entry.count else 1
+                cantidad = entry.extra['count'] if entry.extra['count'] else 1
 
                 if moderador.id in stats:
                     stats[moderador.id]['cantidad'] += cantidad
