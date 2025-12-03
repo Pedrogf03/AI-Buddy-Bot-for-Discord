@@ -19,7 +19,7 @@ class Moderation(commands.Cog):
         stats = {}
 
         try:
-            async for entry in interaction.guild.audit_logs(action=discord.AuditLogAction.member_disconnect, limit=1):
+            async for entry in interaction.guild.audit_logs(action=discord.AuditLogAction.member_disconnect, limit=5):
                 
                 print(entry)
                 print(entry.extra)
