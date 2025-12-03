@@ -1,29 +1,24 @@
 """
-AI Discord Bot - Un bot de Discord con múltiples modelos de IA
+AI Discord Bot - Un bot de Discord con IA
 """
 
-__version__ = "1.0.1"
+__version__ = "2.0.0"
 __author__ = "Pedrogf03"
 
-from .discord_bot import DiscordBot
-from .models import GroqModel, GeminiModel
-from .utils import PromptManager, get_tools
+from .services.ai_service import GroqService
+from .utils.web_search import search_internet
 
 __all__ = [
-    'DiscordBot',
-    'GroqModel', 
-    'GeminiModel',
-    'PromptManager',
-    'get_tools'
+    'GroqService',
+    'search_internet'
 ]
 
 package_info = {
     "name": "AI Discord Bot",
     "version": __version__,
-    "models_available": ["groq", "gemini"],
-    "description": "Bot de Discord con soporte para múltiples modelos de IA"
+    "models_available": ["groq"],
+    "description": "Bot de Discord modular con Slash Commands y soporte para Groq"
 }
 
 def get_info():
-    """Retorna información del paquete"""
     return package_info

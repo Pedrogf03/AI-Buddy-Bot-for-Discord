@@ -1,21 +1,32 @@
 import os
+import discord
+from discord.ext import commands
 from dotenv import load_dotenv
-from discord_bot import DiscordBot
 
-def main():
-    load_dotenv()
-    
-    try:
-        model = "groq"
-        # model = "gemini"
-        
-        bot = DiscordBot(model_provider=model)
+load_dotenv()
 
-        print("🚀 Iniciando sistema...")
-        bot.run()
+class AiBuddy(commands.Bot):
+    def __init__(self):
+        intents = discord.Intents.default()
+        intents.message_content = True
+        super().__init__(command_prefix="!", intents=intents, help_command=None)
+
+    async def setup_hook(self):
+        await self.load_extension("cogs.general")
+        await self.load_extension("cogs.research")
+        await self.load_extension("cogs.media")
+        await self.load_extension("cogs.utility")
+        await self.load_extension("cogs.help")
+        await self.load_extension("cogs.moderation")
         
-    except Exception as e:
-        print(f"❌ Error fatal al iniciar: {e}")
+        await self.tree.sync()
+        print("✅ Comandos sincronizados correctamente.")
+
+    async def on_ready(self):
+        print(f'🤖 Conectado como {self.user} (ID: {self.user.id})')
+        await self.change_presence(activity=discord.Game(name="/search o /joke"))
+
+bot = AiBuddy()
 
 if __name__ == "__main__":
-    main()
+    bot.run(os.getenv("DISCORD_TOKEN"))
