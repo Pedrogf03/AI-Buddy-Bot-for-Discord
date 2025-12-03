@@ -21,21 +21,17 @@ class Moderation(commands.Cog):
         try:
             async for entry in interaction.guild.audit_logs(action=discord.AuditLogAction.member_disconnect, limit=5):
                 
-                print(entry)
-                print(entry.extra)
-                
                 if entry.user is None:
                     continue
+                
+                print(entry.extra.count)
 
-                moderador = entry.user
-                cantidad = entry.extra['count'] if entry.extra['count'] else 1
-
-                if moderador.id in stats:
-                    stats[moderador.id]['cantidad'] += cantidad
+                if entry.user in stats:
+                    stats[entry.user]['cantidad'] += entry.extra.count
                 else:
-                    stats[moderador.id] = {
-                        'user': moderador,
-                        'cantidad': cantidad
+                    stats[entry.user] = {
+                        'user': entry.user.name,
+                        'cantidad': entry.extra.count
                     }
 
             ranking_ordenado = sorted(stats.values(), key=lambda x: x['cantidad'], reverse=True)
@@ -51,7 +47,7 @@ class Moderation(commands.Cog):
                 
                 medalla = "🥇" if i == 1 else "🥈" if i == 2 else "🥉" if i == 3 else f"#{i}"
                 
-                descripcion += f"**{medalla}** {usuario.mention} — **{total}** veces\n"
+                descripcion += f"**{medalla}** {usuario} — **{total}** veces\n"
 
             embed = discord.Embed(
                 title="✂️ Ranking de Desconexiones de Voz",
