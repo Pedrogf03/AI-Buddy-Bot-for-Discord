@@ -19,7 +19,10 @@ class Moderation(commands.Cog):
         stats = {}
 
         try:
-            async for entry in interaction.guild.audit_logs(action=discord.AuditLogAction.member_disconnect, limit=None):
+            async for entry in interaction.guild.audit_logs(action=discord.AuditLogAction.member_disconnect, limit=1):
+                
+                for type in entry:
+                    print(type)
                 
                 if entry.user is None:
                     continue
