@@ -6,9 +6,9 @@ class Moderation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @app_commands.command(name="historial_kicks", description="Cuenta cuántas veces un usuario ha expulsado a otro")
+    @app_commands.command(name="kicks", description="Cuenta cuántas veces un usuario ha expulsado a otro")
     @app_commands.describe(moderador="El usuario que ejecutó la expulsión", usuario="El usuario que fue expulsado")
-    async def historial_kicks(self, interaction: discord.Interaction, moderador: discord.User, usuario: discord.User):
+    async def kicks(self, interaction: discord.Interaction, moderador: discord.User, usuario: discord.User):
         if not interaction.guild.me.guild_permissions.view_audit_log:
             await interaction.response.send_message("❌ **Error:** No tengo permiso para ver el 'Registro de Auditoría' en este servidor.", ephemeral=True)
             return
