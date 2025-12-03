@@ -47,6 +47,34 @@ class Utility(commands.Cog):
         
         embed = discord.Embed(title="📝 Resumen", description=response, color=0xe67e22)
         await interaction.followup.send(embed=embed)
+        
+    @app_commands.command(name="ask", description="Haz cualquier pregunta a la IA")
+    @app_commands.describe(pregunta="Lo que quieras saber o conversar")
+    async def ask(self, interaction: discord.Interaction, pregunta: str):
+
+        await interaction.response.defer()
+
+        system = (
+            "Eres AI-Buddy, un asistente virtual útil, inteligente y amable. "
+            "Responde a las preguntas del usuario de forma clara, precisa y en Español de España. "
+            "Usa formato Markdown (negritas, listas, bloques de código) para estructurar bien tu respuesta."
+        )
+
+        try:
+            respuesta = await self.ai.generate_response(system, pregunta)
+
+            if len(respuesta) > 4090:
+                respuesta = respuesta[:4090] + "... (respuesta truncada por límite de Discord)"
+
+            embed = discord.Embed(description=respuesta, color=0x2ecc71)
+
+            embed.set_author(name=f"Pregunta de {interaction.user.display_name}", icon_url=interaction.user.display_avatar.url)
+            embed.title = pregunta[:250]
+            
+            await interaction.followup.send(embed=embed)
+
+        except Exception as e:
+            await interaction.followup.send(f"❌ Ocurrió un error al generar la respuesta: {str(e)}")
 
 async def setup(bot):
     await bot.add_cog(Utility(bot))

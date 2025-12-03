@@ -17,12 +17,15 @@ class Moderation(commands.Cog):
 
         # Diccionario para guardar {ID_Usuario: {objeto_usuario, contador}}
         stats = {}
+        fecha_mas_antigua = None  # Variable para rastrear la fecha
 
         try:
             async for entry in interaction.guild.audit_logs(action=discord.AuditLogAction.member_disconnect, limit=None):
                 
                 if entry.user is None:
                     continue
+                
+                fecha_mas_antigua = entry.created_at
 
                 if entry.user in stats:
                     stats[entry.user]['cantidad'] += entry.extra.count
@@ -47,12 +50,14 @@ class Moderation(commands.Cog):
                 
                 descripcion += f"**{medalla}** {usuario} — **{total}** veces\n"
 
+            texto_fecha = fecha_mas_antigua.strftime("%d/%m/%Y") if fecha_mas_antigua else "Desconocida"
+
             embed = discord.Embed(
                 title="✂️ Ranking de Desconexiones de Voz",
                 description=f"Estos son los usuarios que más gente han echado del chat de voz:\n\n{descripcion}",
                 color=0xe74c3c
             )
-            embed.set_footer(text="Datos extraídos del Registro de Auditoría completo")
+            embed.set_footer(text=f"Datos extraídos desde: {texto_fecha}")
 
             await interaction.followup.send(embed=embed)
 
