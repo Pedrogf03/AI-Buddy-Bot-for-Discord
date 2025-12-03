@@ -6,40 +6,62 @@ class Moderation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @app_commands.command(name="voice_kicks", description="Cuenta veces que un usuario ha desconectado a otro de la voz")
-    @app_commands.describe(moderador="Quien ejecutó la desconexión", usuario="Quien fue desconectado")
-    async def voice_kicks(self, interaction: discord.Interaction, moderador: discord.User, usuario: discord.User):
+    @app_commands.command(name="top_disconnects", description="Muestra un ranking de usuarios que más han desconectado a otros de canales de voz")
+    async def top_disconnects(self, interaction: discord.Interaction):
+
         if not interaction.guild.me.guild_permissions.view_audit_log:
-            await interaction.response.send_message("❌ **Error:** No tengo permiso para ver el 'Registro de Auditoría'.", ephemeral=True)
+            await interaction.response.send_message("❌ Error: No tengo permiso para ver el 'Registro de Auditoría'.", ephemeral=True)
             return
 
         await interaction.response.defer()
 
-        contador = 0
+        # Diccionario para guardar {ID_Usuario: {objeto_usuario, contador}}
+        stats = {}
+
         try:
             async for entry in interaction.guild.audit_logs(action=discord.AuditLogAction.member_disconnect, limit=None):
                 
-                print(entry)
-                
-                if entry.user is None or entry.target is None:
+                if entry.user is None:
                     continue
 
-                if entry.user.id == moderador.id and entry.target.id == usuario.id:
-                    contador += 1
-            
+                moderador = entry.user
+                cantidad = entry.count if entry.count else 1
+
+                if moderador.id in stats:
+                    stats[moderador.id]['cantidad'] += cantidad
+                else:
+                    stats[moderador.id] = {
+                        'user': moderador,
+                        'cantidad': cantidad
+                    }
+
+            ranking_ordenado = sorted(stats.values(), key=lambda x: x['cantidad'], reverse=True)
+
+            if not ranking_ordenado:
+                await interaction.followup.send("No he encontrado desconexiones en el registro.")
+                return
+
+            descripcion = ""
+            for i, data in enumerate(ranking_ordenado[:10], 1):
+                usuario = data['user']
+                total = data['cantidad']
+                
+                medalla = "🥇" if i == 1 else "🥈" if i == 2 else "🥉" if i == 3 else f"#{i}"
+                
+                descripcion += f"**{medalla}** {usuario.mention} — **{total}** veces\n"
+
             embed = discord.Embed(
-                title="🎤 Informe de Voz",
-                description="Recuento de desconexiones forzadas de canales de voz.",
-                color=0x9b59b6
+                title="✂️ Ranking de Desconexiones de Voz",
+                description=f"Estos son los usuarios que más gente han echado del chat de voz:\n\n{descripcion}",
+                color=0xe74c3c
             )
-            embed.add_field(name="Moderador", value=moderador.mention, inline=True)
-            embed.add_field(name="Desconectó a", value=usuario.mention, inline=True)
-            embed.add_field(name="Total de veces", value=f"**{contador}**", inline=False)
-            
+            embed.set_footer(text="Datos extraídos del Registro de Auditoría completo")
+
             await interaction.followup.send(embed=embed)
 
         except Exception as e:
-            await interaction.followup.send(f"⚠️ Ocurrió un error leyendo los registros: {str(e)}")
+            print(f"Error al generar ranking: {e}")
+            await interaction.followup.send(f"⚠️ Ocurrió un error procesando el ranking: {str(e)}")
 
 async def setup(bot):
     await bot.add_cog(Moderation(bot))
