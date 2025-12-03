@@ -6,9 +6,9 @@ class Moderation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @app_commands.command(name="voice_disconnects", description="Cuenta veces que un usuario ha desconectado a otro de la voz")
+    @app_commands.command(name="voice_kicks", description="Cuenta veces que un usuario ha desconectado a otro de la voz")
     @app_commands.describe(moderador="Quien ejecutó la desconexión", usuario="Quien fue desconectado")
-    async def voice_disconnects(self, interaction: discord.Interaction, moderador: discord.User, usuario: discord.User):
+    async def voice_kicks(self, interaction: discord.Interaction, moderador: discord.User, usuario: discord.User):
         if not interaction.guild.me.guild_permissions.view_audit_log:
             await interaction.response.send_message("❌ **Error:** No tengo permiso para ver el 'Registro de Auditoría'.", ephemeral=True)
             return
