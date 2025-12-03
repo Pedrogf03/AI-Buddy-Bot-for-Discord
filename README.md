@@ -5,8 +5,6 @@
 ![Groq](https://img.shields.io/badge/AI-Groq_Llama3-orange?logo=meta&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-> Un bot de Discord modular "Todo en Uno": Investiga, analiza videos, genera imágenes y entretiene.
-
 [![Invitar al Bot](https://img.shields.io/badge/Discord-Invitar_al_Servidor-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/oauth2/authorize?client_id=1441091789959336058&permissions=67712&integration_type=0&scope=bot+applications.commands)
 
 ---
