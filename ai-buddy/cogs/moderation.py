@@ -6,6 +6,7 @@ class Moderation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    # /voice_kicks
     @app_commands.command(name="voice_kicks", description="Muestra un ranking de usuarios que más han desconectado a otros de canales de voz")
     async def voice_kicks(self, interaction: discord.Interaction):
 

@@ -13,12 +13,11 @@ class AiBuddy(commands.Bot):
         super().__init__(command_prefix="!", intents=intents, help_command=None)
 
     async def setup_hook(self):
+        await self.load_extension("cogs.games")
         await self.load_extension("cogs.general")
-        await self.load_extension("cogs.research")
-        await self.load_extension("cogs.media")
-        await self.load_extension("cogs.utility")
         await self.load_extension("cogs.help")
         await self.load_extension("cogs.moderation")
+        await self.load_extension("cogs.private")
         
         await self.tree.sync()
         print("✅ Comandos sincronizados correctamente.")

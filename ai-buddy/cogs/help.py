@@ -6,6 +6,7 @@ class Help(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    # /help
     @app_commands.command(name="help", description="Muestra todos los comandos disponibles")
     async def help_command(self, interaction: discord.Interaction):
         embed = discord.Embed(
