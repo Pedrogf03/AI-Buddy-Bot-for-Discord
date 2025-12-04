@@ -9,6 +9,7 @@ class AiBuddy(commands.Bot):
     def __init__(self):
         intents = discord.Intents.default()
         intents.message_content = True
+        intents.members = True
         super().__init__(command_prefix="!", intents=intents, help_command=None)
 
     async def setup_hook(self):
@@ -26,9 +27,18 @@ class AiBuddy(commands.Bot):
         print(f'🤖 Conectado como {self.user} (ID: {self.user.id})')
         
         print(f"\n🌍 Conectado a {len(self.guilds)} servidores:")
+        print("="*60)
+        
         for guild in self.guilds:
-            print(f"  • {guild.name} (ID: {guild.id})")
-        print("---------------------------------------")
+            dueno = guild.owner.name if guild.owner else "Desconocido (Falta Intent o Caché)"
+            
+            print(f"  • {guild.name}")
+            print(f"    🆔 ID: {guild.id}")
+            print(f"    👑 Dueño: {dueno}")
+            print(f"    👥 Miembros: {guild.member_count}")
+            print("-" * 30)
+            
+        print("="*60 + "\n")
         
         await self.change_presence(activity=discord.Game(name="/ask o /help"))
 
