@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from services.ai_service import GroqService
+import asyncio
 
 class General(commands.Cog):
     def __init__(self, bot):
@@ -33,7 +34,7 @@ class General(commands.Cog):
         
         system = "Eres un poeta amable. Genera un poema de amor dedicado a omewita."
         
-        response = await self.ai.generate_response(system, "")
+        response = await self.ai.generate_response(system, "Hazlo.")
         await interaction.followup.send(response)
         
     @app_commands.command(name="roast", description="Haz una burla graciosa (roast) a un usuario")
@@ -53,28 +54,66 @@ class General(commands.Cog):
         
         await interaction.followup.send(f"🔥 **ROAST PARA {usuario.mention}:**\n\n{insulto}")
 
-    @app_commands.command(name="debate", description="Inicia un debate con la IA")
+    @app_commands.command(name="debate", description="Inicia un debate interactivo (Debes usar la función Responder)")
+    @app_commands.describe(tema="El tema a debatir", postura="Tu postura (la IA defenderá la contraria)")
     async def debate(self, interaction: discord.Interaction, tema: str, postura: str = "A favor"):
         await interaction.response.defer()
 
         system = (
-            "Eres un experto en debates y abogado del diablo. Tu objetivo es llevar la contraria al usuario "
-            "con argumentos lógicos, sólidos y a veces provocadores. Sé breve pero contundente. "
+            "Eres un experto en debates. Tu objetivo es llevar la contraria al usuario "
+            "con argumentos lógicos. Sé breve (máximo 50 palabras por turno). "
             "Habla siempre en Español de España."
         )
         
-        prompt = (
-            f"El tema del debate es: '{tema}'.\n"
-            f"El usuario defiende la postura: '{postura}'.\n"
-            "Tú debes defender la postura OPUESTA. Empieza el debate dando tu primer argumento."
+        historial = (
+            f"TEMA: '{tema}'.\n"
+            f"USUARIO: '{postura}'.\n"
+            f"TÚ (IA): Postura opuesta.\n\n"
+            "Argumento inicial:"
         )
 
-        respuesta = await self.ai.generate_response(system, prompt)
-        
-        embed = discord.Embed(title=f"🗣️ Debate: {tema}", description=respuesta, color=0xe67e22)
-        embed.set_footer(text=f"Tú defiendes: {postura} | La IA defiende lo contrario")
-        
-        await interaction.followup.send(embed=embed)
+        respuesta_ia = await self.ai.generate_response(system, historial)
+        historial += f"\n\nIA: {respuesta_ia}"
+
+        ultimo_mensaje_bot = await interaction.followup.send(
+            f"**⚔️ DEBATE: {tema}**\n\n{respuesta_ia}\n\n"
+            "*(⚠️ Para seguir, debes usar la función **Responder** a este mensaje)*"
+        )
+
+        def check(m):
+            if m.author != interaction.user or m.channel != interaction.channel:
+                return False
+
+            if m.reference is None:
+                return False
+
+            return m.reference.message_id == ultimo_mensaje_bot.id
+
+        while True:
+            try:
+                mensaje_usuario = await self.bot.wait_for('message', check=check, timeout=300.0)
+                
+                content = mensaje_usuario.content.lower()
+
+                if content in ["fin", "stop", "me rindo", "adios"]:
+                    await mensaje_usuario.reply("🏳️ Debate finalizado.")
+                    break
+
+                async with interaction.channel.typing():
+                    historial += f"\n\nUSUARIO: {mensaje_usuario.content}"
+                    
+                    prompt = f"{historial}\n\nInstrucción: Rebate el argumento. Sé breve."
+                    respuesta_ia = await self.ai.generate_response(system, prompt)
+                    historial += f"\n\nIA: {respuesta_ia}"
+
+                ultimo_mensaje_bot = await mensaje_usuario.reply(respuesta_ia)
+
+            except asyncio.TimeoutError:
+                await interaction.followup.send(f"⏳ {interaction.user.mention}, se acabó el tiempo.")
+                break
+            except Exception as e:
+                print(f"Error debate: {e}")
+                break
 
 async def setup(bot):
     await bot.add_cog(General(bot))

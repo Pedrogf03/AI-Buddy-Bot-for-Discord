@@ -8,7 +8,6 @@ class Help(commands.Cog):
 
     @app_commands.command(name="help", description="Muestra todos los comandos disponibles")
     async def help_command(self, interaction: discord.Interaction):
-
         embed = discord.Embed(
             title="🤖 Centro de Ayuda de AI-Buddy",
             description="Aquí tienes la lista de todo lo que puedo hacer por ti:",
@@ -16,10 +15,9 @@ class Help(commands.Cog):
         )
         
         for command in self.bot.tree.walk_commands():
+            
             if command.extras.get('hidden'):
                 continue
-
-        for command in self.bot.tree.walk_commands():
 
             if isinstance(command, app_commands.Command):
                 nombre = f"/{command.name}"
@@ -32,7 +30,7 @@ class Help(commands.Cog):
 
         embed.set_footer(text="Usa los comandos escribiendo '/' en el chat.")
         
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
 async def setup(bot):
     await bot.add_cog(Help(bot))
