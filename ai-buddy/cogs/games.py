@@ -85,10 +85,10 @@ class Games(commands.Cog):
                 break
 
     # /ship
-    @app_commands.command(name="ship", description="Calcula la compatibilidad amorosa entre dos usuarios")
+    @app_commands.command(name="ship", description="Calcula la compatibilidad amorosa")
     async def ship(self, interaction: discord.Interaction, usuario1: discord.Member, usuario2: discord.Member):
         await interaction.response.defer()
-
+        
         seed = usuario1.id + usuario2.id
         random.seed(seed)
         porcentaje = random.randint(0, 100)
@@ -96,16 +96,19 @@ class Games(commands.Cog):
         bloques = int(porcentaje / 10)
         barra = "💖" * bloques + "🖤" * (10 - bloques)
 
-        system = "Eres un cupido sarcástico y gracioso. Explica brevemente la compatibilidad de esta pareja basándote en su porcentaje."
-        prompt = f"Pareja: {usuario1.display_name} y {usuario2.display_name}. Compatibilidad: {porcentaje}%. Inventa una razón."
+        system = "Eres un cupido sarcástico. Explica la compatibilidad en MÁXIMO 50 PALABRAS."
+        prompt = f"Pareja: {usuario1.display_name} y {usuario2.display_name}. Compatibilidad: {porcentaje}%."
         
         comentario = await self.ai.generate_response(system, prompt)
+
+        if len(comentario) > 1024:
+            comentario = comentario[:1020] + "..."
 
         embed = discord.Embed(title="💘 Test de Compatibilidad", color=0xe91e63)
         embed.add_field(name="Pareja", value=f"{usuario1.mention} x {usuario2.mention}", inline=False)
         embed.add_field(name="Resultado", value=f"**{porcentaje}%**\n{barra}", inline=False)
-        embed.add_field(name="Opinión de Cupido", value=comentario, inline=False)
-
+        embed.add_field(name="Opinión", value=comentario, inline=False)
+        
         await interaction.followup.send(embed=embed)
     
     # /debate
