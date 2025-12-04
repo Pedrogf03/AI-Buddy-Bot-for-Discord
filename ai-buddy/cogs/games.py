@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from services.ai_service import GroqService
+from utils.split_text import split_text
 import asyncio
 import random
 
@@ -11,7 +12,7 @@ class Games(commands.Cog):
         self.ai = GroqService()
 
     # /rpg
-    @app_commands.command(name="rpg", description="Inicia una aventura de rol textual infinita donde tú eres el protagonista")
+    @app_commands.command(name="rpg", description="Inicia una aventura de rol textual infinita")
     @app_commands.describe(escenario="Dónde ocurre la historia (Ej: Nave espacial, Castillo, Mercadona en apocalipsis)")
     async def rpg(self, interaction: discord.Interaction, escenario: str):
         await interaction.response.defer()
@@ -29,10 +30,17 @@ class Games(commands.Cog):
         narracion = await self.ai.generate_response(system, historial)
         historial += f"\n\nDM: {narracion}"
 
-        ultimo_msg = await interaction.followup.send(
-            f"🎲 **AVENTURA: {escenario.upper()}**\n\n{narracion}\n\n"
-            "*(Responde a este mensaje con tu acción o el número de opción. Escribe 'fin' para salir)*"
-        )
+        fragmentos = split_text(f"🎲 **AVENTURA: {escenario.upper()}**\n\n{narracion}")
+        
+        ultimo_msg = None
+        for i, frag in enumerate(fragmentos):
+            if i == len(fragmentos) - 1:
+                frag += "\n\n*(Responde a este mensaje con tu acción o el número de opción. Escribe 'fin' para salir)*"
+            
+            if i == 0:
+                ultimo_msg = await interaction.followup.send(frag)
+            else:
+                ultimo_msg = await interaction.channel.send(frag)
 
         def check(m):
             if m.author != interaction.user or m.channel != interaction.channel:
@@ -53,18 +61,27 @@ class Games(commands.Cog):
                 async with interaction.channel.typing():
                     historial += f"\n\nJUGADOR: {mensaje_usuario.content}"
                     
-                    prompt_turno = f"{historial}\n\nInstrucción: Continúa la historia basándote en la acción del jugador. Ofrece nuevas opciones."
+                    prompt_turno = f"{historial}\n\nInstrucción: Continúa la historia. Ofrece nuevas opciones."
                     
                     narracion = await self.ai.generate_response(system, prompt_turno)
                     historial += f"\n\nDM: {narracion}"
 
-                ultimo_msg = await mensaje_usuario.reply(narracion)
+                fragmentos = split_text(narracion)
+                
+                for i, frag in enumerate(fragmentos):
+                    if i == 0:
+                        ultimo_msg = await mensaje_usuario.reply(frag)
+                    else:
+                        ultimo_msg = await interaction.channel.send(frag)
 
                 if "FIN DEL JUEGO" in narracion:
                     break
 
             except asyncio.TimeoutError:
                 await interaction.followup.send(f"💤 {interaction.user.mention}, te has quedado dormido en la aventura. Fin.")
+                break
+            except Exception as e:
+                await interaction.followup.send(f"⚠️ Error en el RPG: {e}")
                 break
 
     # /ship
