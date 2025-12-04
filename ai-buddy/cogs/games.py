@@ -10,6 +10,7 @@ class Games(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.ai = GroqService()
+        self.debates_activos = set()
 
     # /rpg
     @app_commands.command(name="rpg", description="Inicia una aventura de rol textual infinita")
@@ -115,63 +116,73 @@ class Games(commands.Cog):
     @app_commands.command(name="debate", description="Inicia un debate interactivo (Debes usar la función Responder)")
     @app_commands.describe(tema="El tema a debatir", postura="Tu postura (la IA defenderá la contraria)")
     async def debate(self, interaction: discord.Interaction, tema: str, postura: str = "A favor"):
-        await interaction.response.defer()
+        if interaction.channel.id in self.debates_activos:
+            await interaction.response.send_message("⚠️ Ya hay un debate activo en este canal. Debéis esperar a que termine.", ephemeral=True)
+            return
 
-        system = (
-            "Eres un experto en debates. Tu objetivo es llevar la contraria al usuario "
-            "con argumentos lógicos. Sé breve (máximo 50 palabras por turno). "
-            "Habla siempre en Español de España."
-        )
-        
-        historial = (
-            f"TEMA: '{tema}'.\n"
-            f"USUARIO: '{postura}'.\n"
-            f"TÚ (IA): Postura opuesta.\n\n"
-            "Argumento inicial:"
-        )
+        self.debates_activos.add(interaction.channel.id)
 
-        respuesta_ia = await self.ai.generate_response(system, historial)
-        historial += f"\n\nIA: {respuesta_ia}"
+        try:
+            await interaction.response.defer()
 
-        ultimo_mensaje_bot = await interaction.followup.send(
-            f"**⚔️ DEBATE: {tema}**\n\n{respuesta_ia}\n\n"
-            "*(⚠️ Para seguir, debes usar la función **Responder** a este mensaje)*"
-        )
+            system = (
+                "Eres un experto en debates. Tu objetivo es llevar la contraria al usuario "
+                "con argumentos lógicos. Sé breve (máximo 150 palabras por turno). "
+                "Habla siempre en Español de España."
+            )
+            
+            historial = (
+                f"TEMA: '{tema}'.\n"
+                f"USUARIO: '{postura}'.\n"
+                f"TÚ (IA): Postura opuesta.\n\n"
+                "Argumento inicial:"
+            )
 
-        def check(m):
-            if m.author != interaction.user or m.channel != interaction.channel:
-                return False
+            respuesta_ia = await self.ai.generate_response(system, historial)
+            historial += f"\n\nIA: {respuesta_ia}"
 
-            if m.reference is None:
-                return False
+            ultimo_mensaje_bot = await interaction.followup.send(
+                f"**⚔️ DEBATE: {tema}**\n\n{respuesta_ia}\n\n"
+                "*(⚠️ Para seguir, debes usar la función **Responder** a este mensaje)*"
+            )
 
-            return m.reference.message_id == ultimo_mensaje_bot.id
+            def check(m):
+                if m.author != interaction.user or m.channel != interaction.channel:
+                    return False
 
-        while True:
-            try:
-                mensaje_usuario = await self.bot.wait_for('message', check=check, timeout=300.0)
-                
-                content = mensaje_usuario.content.lower()
+                if m.reference is None:
+                    return False
 
-                if content in ["fin", "stop", "me rindo", "adios"]:
-                    await mensaje_usuario.reply("🏳️ Debate finalizado.")
-                    break
+                return m.reference.message_id == ultimo_mensaje_bot.id
 
-                async with interaction.channel.typing():
-                    historial += f"\n\nUSUARIO: {mensaje_usuario.content}"
+            while True:
+                try:
+                    mensaje_usuario = await self.bot.wait_for('message', check=check, timeout=300.0)
                     
-                    prompt = f"{historial}\n\nInstrucción: Rebate el argumento. Sé breve."
-                    respuesta_ia = await self.ai.generate_response(system, prompt)
-                    historial += f"\n\nIA: {respuesta_ia}"
+                    content = mensaje_usuario.content.lower()
 
-                ultimo_mensaje_bot = await mensaje_usuario.reply(respuesta_ia)
+                    if content in ["fin", "stop", "me rindo", "adios"]:
+                        await mensaje_usuario.reply("🏳️ Debate finalizado.")
+                        break
 
-            except asyncio.TimeoutError:
-                await interaction.followup.send(f"⏳ {interaction.user.mention}, se acabó el tiempo.")
-                break
-            except Exception as e:
-                print(f"Error debate: {e}")
-                break
+                    async with interaction.channel.typing():
+                        historial += f"\n\nUSUARIO: {mensaje_usuario.content}"
+                        
+                        prompt = f"{historial}\n\nInstrucción: Rebate el argumento. Sé breve."
+                        respuesta_ia = await self.ai.generate_response(system, prompt)
+                        historial += f"\n\nIA: {respuesta_ia}"
+
+                    ultimo_mensaje_bot = await mensaje_usuario.reply(respuesta_ia)
+
+                except asyncio.TimeoutError:
+                    await interaction.followup.send(f"⏳ {interaction.user.mention}, se acabó el tiempo.")
+                    break
+                except Exception as e:
+                    print(f"Error debate: {e}")
+                    break
+        finally:
+            if interaction.channel.id in self.debates_activos:
+                self.debates_activos.remove(interaction.channel.id)
     
     # /roast
     @app_commands.command(name="roast", description="Haz una burla graciosa (roast) a un usuario")
