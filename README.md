@@ -11,51 +11,56 @@
 
 ## 📖 Descripción
 
-**AI-Buddy v2.0** es la evolución completa del asistente. Abandonando los chats pasivos, ahora funciona mediante **Slash Commands (`/`)** para ofrecer herramientas precisas de productividad y entretenimiento.
+**AI-Buddy v2.0** es la evolución completa del asistente. Abandonando los chats pasivos, ahora funciona mediante **Slash Commands (`/`)** para ofrecer herramientas precisas de productividad, moderación y entretenimiento.
 
-Utiliza la potencia de **Llama 3 (vía Groq)** para el razonamiento, **DuckDuckGo** para la investigación y varias APIs especializadas para el manejo de multimedia, todo sin requerir claves API costosas para las funciones extra.
+Utiliza la potencia de **Llama 3 (vía Groq)** para el razonamiento, **DuckDuckGo** para la investigación y varias APIs especializadas.
 
 ## ✨ Características Principales
 
 - **⚡ Velocidad Extrema:** Respuestas casi instantáneas gracias a la infraestructura de Groq.
-- **🎨 Generación de Imágenes:** Crea arte visual al instante usando IA generativa (`/imagine`).
-- **🧠 Entretenimiento Inteligente:** Desde debates filosóficos contra la IA hasta "Roasts" personalizados para tus amigos.
-- **🛡️ Privacidad:** Sin bases de datos. Todo es efímero y se procesa en RAM.
+- **🎲 Juegos de Rol Infinitos:** Un Dungeon Master IA (`/rpg`) que narra aventuras interactivas donde tú tomas las decisiones.
+- **🎨 Arte y Diversión:** Generación de imágenes, tests de compatibilidad y debates contra la IA.
 
 ## 🎮 Comandos Disponibles
 
-Escribe `/` en el chat para ver el menú.
+Escribe `/` en el chat para ver el menú interactivo.
 
-### 🛠️ Utilidad e Investigación
-
-| Comando              | Descripción                                                           |
-| :------------------- | :-------------------------------------------------------------------- |
+### 🧠 IA y Utilidad General
+| Comando | Descripción |
+| :--- | :--- |
+| `/ask [pregunta]` | Conversa directamente con la IA sobre cualquier tema. |
+| `/eli5 [tema]` | *"Explain Like I'm 5"*. Explica conceptos difíciles de forma muy simple. |
 | `/search [consulta]` | Busca en internet en tiempo real y resume la información con fuentes. |
-| `/codigo [leng]`     | Genera snippets de programación explicados.                           |
-| `/traducir`          | Traduce textos complejos a cualquier idioma.                          |
 
-### 🎭 Diversión y Multimedia
+### 🎭 Juegos y Entretenimiento
+| Comando | Descripción |
+| :--- | :--- |
+| `/rpg [escenario]` | Inicia una aventura de rol textual infinita. ¡Tú eliges el mundo! |
+| `/ship [u1] [u2]` | Calcula la compatibilidad amorosa entre dos usuarios (con opinión de la IA). |
+| `/imagine [prompt]` | Genera una imagen basada en tu descripción (vía Pollinations). |
+| `/debate [tema]` | Inicia un debate interactivo donde la IA adopta la postura contraria a la tuya. |
+| `/roast [@usuario]` | Genera una burla graciosa e ingeniosa hacia un miembro del servidor. |
+| `/joke [tema]` | Cuenta un chiste sobre el tema que elijas. |
 
-| Comando             | Descripción                                                              |
-| :------------------ | :----------------------------------------------------------------------- |
-| `/imagine [prompt]` | Genera una imagen basada en tu descripción (vía Pollinations).           |
-| `/debate [tema]`    | Inicia un debate donde la IA adopta la postura contraria a la tuya.      |
-| `/roast [@usuario]` | Genera una burla graciosa e ingeniosa hacia un miembro del servidor.     |
-| `/joke [tema]`      | Cuenta un chiste sobre el tema que elijas.                               |
-| `/eli5 [tema]`      | _"Explain Like I'm 5"_. Explica conceptos difíciles de forma muy simple. |
+### 🛠️ Herramientas y Moderación
+| Comando | Descripción |
+| :--- | :--- |
+| `/voice_kicks` | Muestra un ranking (Top 10) de usuarios que más han desconectado a otros de la voz. |
+| `/code [leng]` | Genera snippets de programación explicados. |
+| `/code_review [leng] [código]` | Analiza el código y da una versión mejorada. |
 
 ## 📂 Estructura del Proyecto
 
-El bot utiliza una arquitectura de **Cogs** (extensiones) para mantener el código limpio:
+El bot utiliza una arquitectura modular basada en **Cogs**:
 
 ```text
 ai-buddy/
-├── cogs/               # Lógica de los comandos
+├── cogs/               # Lógica de comandos
 ├── services/           # Lógica de conexión con Groq (LLM)
-├── utils/              # Herramientas de búsqueda web
+├── utils/              # Funciones auxiliares (split_text, search)
 ├── main.py             # Arranque y carga de módulos
 └── Dockerfile          # Configuración de despliegue
-```
+````
 
 ## 🚀 Instalación y Despliegue
 
@@ -97,18 +102,18 @@ GROQ_API_KEY=tu_api_key_de_groq
 
 ## 🛠️ Stack Tecnológico
 
-- **Core:** Python 3.10+, Discord.py
-- **IA:** Groq Cloud (Llama-3.3-70b)
-- **Web:** DuckDuckGo Search.
-- **Imágenes:** Pollinations.ai API.
+  - **Core:** Python 3.10+, Discord.py
+  - **IA:** Groq Cloud (Llama-3.3-70b)
+  - **Web:** DuckDuckGo Search.
+  - **Imágenes:** Pollinations.ai API.
 
 ## ⚖️ Legal y Privacidad
 
 El uso de este bot implica la aceptación de nuestras políticas.
 
-- [Política de Privacidad](PRIVACY.md)
-- [PTérminos y Condiciones](TERMS.md)
+  - [Política de Privacidad](PRIVACY.md)
+  - [Términos y Condiciones](https://www.google.com/search?q=TERMS.md)
 
----
+-----
 
 Desarrollado por [Pedrogf03](https://github.com/Pedrogf03) 🖤
