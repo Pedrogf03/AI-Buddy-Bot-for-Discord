@@ -27,7 +27,7 @@ class General(commands.Cog):
         response = await self.ai.generate_response(system, concepto)
         await interaction.followup.send(response)
         
-    @app_commands.command(name="omewa", description="Genera un poema de amor para omewita")
+    @app_commands.command(name="omewa", description="Genera un poema de amor para omewita", extras={'hidden': True})
     async def omewa(self, interaction: discord.Interaction):
         await interaction.response.defer()
         
