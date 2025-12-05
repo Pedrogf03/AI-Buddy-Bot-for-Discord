@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-MY_GUILD_ID = discord.Object(id=709364231346323527)
+MY_GUILD_ID = discord.Object(id=os.getenv("MY_GUILD_ID"))
 
 class AiBuddy(commands.Bot):
     def __init__(self):
