@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+MY_GUILD_ID = discord.Object(id=709364231346323527)
+
 class AiBuddy(commands.Bot):
     def __init__(self):
         intents = discord.Intents.default()
@@ -19,8 +21,10 @@ class AiBuddy(commands.Bot):
         await self.load_extension("cogs.moderation")
         await self.load_extension("cogs.private")
         
-        await self.tree.sync()
-        print("✅ Comandos sincronizados correctamente.")
+        self.tree.copy_global_to(guild=MY_GUILD_ID)
+        await self.tree.sync(guild=MY_GUILD_ID)
+        
+        print("✅ Comandos sincronizados para el servidor privado y globales.")
 
     async def on_ready(self):
         print(f'🤖 Conectado como {self.user} (ID: {self.user.id})')
@@ -29,7 +33,7 @@ class AiBuddy(commands.Bot):
         print("="*60)
         
         for guild in self.guilds:
-            dueno = guild.owner.name if guild.owner else "Desconocido (Falta Intent o Caché)"
+            dueno = guild.owner.name if guild.owner else "Desconocido"
             
             print(f"  • {guild.name}")
             print(f"    🆔 ID: {guild.id}")
