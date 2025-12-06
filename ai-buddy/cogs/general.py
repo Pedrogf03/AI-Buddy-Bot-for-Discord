@@ -4,6 +4,7 @@ from discord import app_commands
 import re
 import urllib.parse
 import requests
+import io
 from services.ai_service import GroqService
 from utils.web_search import search_internet
 from utils.split_text import split_text
@@ -22,7 +23,6 @@ class General(commands.Cog):
         
         response = await self.ai.generate_response(system, concepto)
         
-        # Aplicamos split_text
         fragmentos = split_text(response)
         for i, frag in enumerate(fragmentos):
             if i == 0:
@@ -46,17 +46,12 @@ class General(commands.Cog):
         try:
             respuesta = await self.ai.generate_response(system, pregunta)
 
-            # Lógica híbrida:
-            # Si la respuesta cabe en un Embed (aprox 4000 chars), usamos Embed porque es más bonito.
-            # Si es más larga, usamos split_text y enviamos mensajes normales para no cortar nada.
-            
             if len(respuesta) <= 4000:
                 embed = discord.Embed(description=respuesta, color=0x2ecc71)
                 embed.set_author(name=f"Pregunta de {interaction.user.display_name}", icon_url=interaction.user.display_avatar.url)
                 embed.title = pregunta[:250]
                 await interaction.followup.send(embed=embed)
             else:
-                # Caso respuesta masiva: Enviamos encabezado y luego el texto dividido
                 await interaction.followup.send(f"**❓ Pregunta:** {pregunta}\n*(La respuesta es larga, se enviará en varios mensajes)*")
                 
                 fragmentos = split_text(respuesta)
@@ -91,7 +86,6 @@ class General(commands.Cog):
         try:
             response = await self.ai.generate_response(system, prompt)
             
-            # Igual que en /ask, si es gigante (muchas fuentes), usamos texto plano dividido
             if len(response) <= 4000:
                 embed = discord.Embed(title=f"🔎 Resultados: {consulta}", description=response, color=0x00ff00)
                 embed.set_footer(text="Información obtenida vía DuckDuckGo & Groq")
@@ -109,7 +103,6 @@ class General(commands.Cog):
     # /imagine
     @app_commands.command(name="imagine", description="Genera una imagen usando IA (Pollinations)")
     async def imagine(self, interaction: discord.Interaction, prompt: str):
-        # Las imágenes no necesitan split_text
         await interaction.response.defer()
         
         encoded_prompt = urllib.parse.quote(prompt)
@@ -130,14 +123,12 @@ class General(commands.Cog):
         system = f"Eres un traductor profesional experto. Traduce el texto del usuario al idioma: {idioma}. Devuelve SOLO la traducción, sin explicaciones extra."
         response = await self.ai.generate_response(system, texto)
         
-        # Los campos de Embed (add_field) tienen límite de 1024 caracteres.
         if len(response) < 1000 and len(texto) < 1000:
             embed = discord.Embed(title=f"Traducción al {idioma}", color=0x3498db)
             embed.add_field(name="Original", value=texto, inline=False)
             embed.add_field(name="Traducción", value=response, inline=False)
             await interaction.followup.send(embed=embed)
         else:
-            # Si es un texto largo, lo enviamos dividido
             header = f"🌐 **Traducción al {idioma}**\n\n**Original:**\n{texto[:500]}..." if len(texto) > 500 else f"**Original:**\n{texto}"
             await interaction.followup.send(header)
             
@@ -146,40 +137,96 @@ class General(commands.Cog):
                 await interaction.channel.send(frag)
 
     # /code
-    @app_commands.command(name="code", description="Genera un snippet de código en el lenguaje especificado")
+    @app_commands.command(name="code", description="Genera un archivo de código en el lenguaje especificado")
     @app_commands.describe(lenguaje="Python, JS, C++...", instruccion="Qué debe hacer el código")
     async def codigo(self, interaction: discord.Interaction, lenguaje: str, instruccion: str):
         await interaction.response.defer()
         
+        extensiones = {
+            'python': 'py', 'py': 'py', 'javascript': 'js', 'js': 'js', 'node': 'js',
+            'typescript': 'ts', 'ts': 'ts', 'html': 'html', 'css': 'css',
+            'c++': 'cpp', 'cpp': 'cpp', 'c': 'c', 'java': 'java', 'c#': 'cs', 
+            'go': 'go', 'rust': 'rs', 'php': 'php', 'sql': 'sql', 'json': 'json', 'bash': 'sh'
+        }
+        ext = extensiones.get(lenguaje.lower(), 'txt')
+        
         system = (
             f"Eres un experto programador senior. Genera código en {lenguaje}. "
-            "Proporciona solo el código dentro de bloques markdown, con comentarios breves explicativos en el código. "
-            "No des cháchara antes ni después."
+            "IMPORTANTE: Devuelve ÚNICAMENTE el código en texto plano. "
+            "NO uses bloques de markdown, ni títulos, ni explicaciones. "
         )
         prompt = f"Instrucción: {instruccion}"
         
         response = await self.ai.generate_response(system, prompt)
         
-        texto_completo = f"Aquí tienes tu código en **{lenguaje}**:\n{response}"
-        fragmentos = split_text(texto_completo)
+        # Limpieza por si la IA pone markdown
+        codigo_limpio = response.replace(f"```{lenguaje.lower()}", "").replace("```", "").strip()
         
-        for i, frag in enumerate(fragmentos):
-            if i == 0:
-                await interaction.followup.send(frag)
-            else:
-                await interaction.channel.send(frag)
+        archivo_en_memoria = io.BytesIO(codigo_limpio.encode('utf-8'))
+        archivo_discord = discord.File(archivo_en_memoria, filename=f"code.{ext}")
+        
+        await interaction.followup.send(f"Aquí tienes tu código en **{lenguaje}**:", file=archivo_discord)
 
     # /resumen
-    @app_commands.command(name="resumen", description="Resume un texto largo en 3 puntos clave")
-    async def resumir(self, interaction: discord.Interaction, texto: str):
+    @app_commands.command(name="resumen", description="Resume un texto, un archivo o una web en 3 puntos clave")
+    @app_commands.describe(texto="Texto directo", archivo="Archivo de texto (.txt, .md, .py...)", url="Enlace a una web")
+    async def resumir(self, interaction: discord.Interaction, texto: str = None, archivo: discord.Attachment = None, url: str = None):
         await interaction.response.defer()
         
-        system = "Eres un asistente eficiente. Resume el siguiente texto proporcionado por el usuario en 3 puntos clave (bullet points). Sé conciso."
+        contenido_a_resumir = ""
+
+        # 1. Procesamiento de Archivo
+        if archivo:
+            # Verificamos que sea un archivo de texto o código manejable
+            if not archivo.filename.endswith(('.txt', '.md', '.py', '.js', '.html', '.css', '.json', '.c', '.cpp')):
+                await interaction.followup.send("❌ Por favor, sube un archivo de texto válido (.txt, .md, código, etc).")
+                return
+            try:
+                # Leemos los bytes y decodificamos a string
+                archivo_bytes = await archivo.read()
+                contenido_a_resumir = archivo_bytes.decode('utf-8')
+            except UnicodeDecodeError:
+                await interaction.followup.send("❌ No pude leer el archivo. Asegúrate de que esté codificado en UTF-8.")
+                return
+
+        # 2. Procesamiento de URL
+        elif url:
+            try:
+                # Hacemos la petición a la web
+                page = requests.get(url, timeout=10)
+                if page.status_code == 200:
+                    raw_html = page.text
+                    # Limpieza básica de HTML usando regex para no gastar tokens en etiquetas
+                    clean_text = re.sub(r'<[^>]+>', '', raw_html) # Elimina etiquetas <...>
+                    contenido_a_resumir = clean_text[:10000] # Limitamos caracteres para no saturar
+                else:
+                    await interaction.followup.send(f"❌ No pude acceder a la web. Código de estado: {page.status_code}")
+                    return
+            except Exception as e:
+                await interaction.followup.send(f"❌ Error al intentar acceder a la URL: {str(e)}")
+                return
+
+        # 3. Procesamiento de Texto directo
+        elif texto:
+            contenido_a_resumir = texto
+
+        # Validación final
+        if not contenido_a_resumir:
+            await interaction.followup.send("⚠️ Debes proporcionar un **texto**, adjuntar un **archivo** o poner una **URL**.")
+            return
+
+        # Enviamos a la IA
+        system = "Eres un asistente eficiente. Resume el siguiente contenido proporcionado por el usuario en 3 puntos clave (bullet points). Sé conciso."
         
-        response = await self.ai.generate_response(system, texto)
+        # Recortamos por seguridad si es gigante (aunque Groq suele aguantar bastante contexto)
+        response = await self.ai.generate_response(system, contenido_a_resumir[:15000])
         
         if len(response) <= 4000:
             embed = discord.Embed(title="📝 Resumen", description=response, color=0xe67e22)
+            if url:
+                embed.set_footer(text=f"Fuente: {url}")
+            elif archivo:
+                embed.set_footer(text=f"Archivo: {archivo.filename}")
             await interaction.followup.send(embed=embed)
         else:
             fragmentos = split_text(f"📝 **Resumen:**\n\n{response}")
@@ -190,32 +237,64 @@ class General(commands.Cog):
                     await interaction.channel.send(frag)
     
     # /code_review
-    @app_commands.command(name="code_review", description="La IA analiza tu código, busca errores y lo mejora")
+    @app_commands.command(name="code_review", description="Analiza tu código, explica errores y envía la corrección en un archivo")
     @app_commands.describe(lenguaje="Python, JS, etc.", codigo="Pega aquí tu código")
     async def revisar_codigo(self, interaction: discord.Interaction, lenguaje: str, codigo: str):
         await interaction.response.defer()
 
+        # Determinamos extensión igual que en /code
+        extensiones = {
+            'python': 'py', 'py': 'py', 'javascript': 'js', 'js': 'js', 'node': 'js',
+            'typescript': 'ts', 'ts': 'ts', 'html': 'html', 'css': 'css',
+            'c++': 'cpp', 'cpp': 'cpp', 'c': 'c', 'java': 'java', 'c#': 'cs', 
+            'go': 'go', 'rust': 'rs', 'php': 'php', 'sql': 'sql', 'json': 'json', 'bash': 'sh'
+        }
+        ext = extensiones.get(lenguaje.lower(), 'txt')
+
+        # Prompt con separador especial para dividir explicación y código raw
+        separator = "---CODE_SEPARATOR---"
+        
         system = (
             f"Eres un ingeniero de software senior experto en {lenguaje}. "
             "Analiza el código del usuario. "
-            "1. Busca bugs potenciales o malas prácticas. "
-            "2. Muestra la versión corregida y optimizada. "
-            "3. Explica los cambios brevemente."
+            "1. Proporciona una explicación clara de los errores y las mejoras realizadas. "
+            f"2. Luego, inserta exactamente este separador: {separator}\n"
+            "3. Después del separador, proporciona ÚNICAMENTE el código corregido completo en texto plano (sin markdown, sin ```). "
+            "Tu respuesta debe tener esas dos partes diferenciadas."
         )
 
         response = await self.ai.generate_response(system, codigo)
         
-        # Code reviews suelen ser largas, verificamos longitud
-        if len(response) <= 4000:
-            embed = discord.Embed(title=f"🛠️ Revisión de código ({lenguaje})", description=response, color=0x34495e)
+        # Lógica de separación
+        if separator in response:
+            partes = response.split(separator)
+            explicacion = partes[0].strip()
+            codigo_final = partes[1].strip()
+            
+            # Limpieza extra del código por si acaso
+            codigo_final = codigo_final.replace(f"```{lenguaje.lower()}", "").replace("```", "").strip()
+        else:
+            # Fallback por si la IA ignora el separador
+            explicacion = response
+            codigo_final = ""
+
+        # 1. Enviamos la explicación (Embed o texto plano si es muy larga)
+        if len(explicacion) <= 4000:
+            embed = discord.Embed(title=f"🛠️ Revisión de código ({lenguaje})", description=explicacion, color=0x34495e)
             await interaction.followup.send(embed=embed)
         else:
-            header = f"🛠️ **Revisión de código ({lenguaje})**"
-            await interaction.followup.send(header)
-            
-            fragmentos = split_text(response)
+            await interaction.followup.send(f"🛠️ **Revisión de código ({lenguaje})**")
+            fragmentos = split_text(explicacion)
             for frag in fragmentos:
                 await interaction.channel.send(frag)
+        
+        # 2. Enviamos el archivo con el código corregido si existe
+        if codigo_final:
+            archivo_memoria = io.BytesIO(codigo_final.encode('utf-8'))
+            archivo_discord = discord.File(archivo_memoria, filename=f"revisado.{ext}")
+            
+            # Lo enviamos como un mensaje nuevo en el mismo hilo/canal
+            await interaction.channel.send("Aquí tienes el archivo con el código corregido y optimizado:", file=archivo_discord)
 
 async def setup(bot):
     await bot.add_cog(General(bot))
