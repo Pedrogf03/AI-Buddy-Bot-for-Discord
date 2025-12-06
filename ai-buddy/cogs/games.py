@@ -31,10 +31,13 @@ class Games(commands.Cog):
         narracion = await self.ai.generate_response(system, historial)
         historial += f"\n\nDM: {narracion}"
 
-        fragmentos = split_text(f"🎲 **AVENTURA: {escenario.upper()}**\n\n{narracion}")
+        # Aplicamos split_text al mensaje inicial
+        texto_completo = f"🎲 **AVENTURA: {escenario.upper()}**\n\n{narracion}"
+        fragmentos = split_text(texto_completo)
         
         ultimo_msg = None
         for i, frag in enumerate(fragmentos):
+            # Añadimos instrucciones solo al último fragmento
             if i == len(fragmentos) - 1:
                 frag += "\n\n*(Responde a este mensaje con tu acción o el número de opción. Escribe 'fin' para salir)*"
             
@@ -67,6 +70,7 @@ class Games(commands.Cog):
                     narracion = await self.ai.generate_response(system, prompt_turno)
                     historial += f"\n\nDM: {narracion}"
 
+                # Aplicamos split_text a la respuesta del turno
                 fragmentos = split_text(narracion)
                 
                 for i, frag in enumerate(fragmentos):
@@ -102,6 +106,7 @@ class Games(commands.Cog):
         
         comentario = await self.ai.generate_response(system, prompt)
 
+        # Truncado manual para evitar rotura de Embed (los embeds no se pueden dividir con split_text fácilmente)
         if len(comentario) > 1024:
             comentario = comentario[:1020] + "..."
 
@@ -141,18 +146,26 @@ class Games(commands.Cog):
             respuesta_ia = await self.ai.generate_response(system, historial)
             historial += f"\n\nIA: {respuesta_ia}"
 
-            ultimo_mensaje_bot = await interaction.followup.send(
+            # Preparamos el mensaje inicial y aplicamos split_text
+            mensaje_completo = (
                 f"**⚔️ DEBATE: {tema}**\n\n{respuesta_ia}\n\n"
                 "*(⚠️ Para seguir, debes usar la función **Responder** a este mensaje)*"
             )
+            fragmentos = split_text(mensaje_completo)
+
+            ultimo_mensaje_bot = None
+            for i, frag in enumerate(fragmentos):
+                if i == 0:
+                    ultimo_mensaje_bot = await interaction.followup.send(frag)
+                else:
+                    ultimo_mensaje_bot = await interaction.channel.send(frag)
 
             def check(m):
                 if m.author != interaction.user or m.channel != interaction.channel:
                     return False
-
                 if m.reference is None:
                     return False
-
+                # Validamos contra el último mensaje enviado (por si se dividió)
                 return m.reference.message_id == ultimo_mensaje_bot.id
 
             while True:
@@ -172,7 +185,14 @@ class Games(commands.Cog):
                         respuesta_ia = await self.ai.generate_response(system, prompt)
                         historial += f"\n\nIA: {respuesta_ia}"
 
-                    ultimo_mensaje_bot = await mensaje_usuario.reply(respuesta_ia)
+                    # Aplicamos split_text a la respuesta del bucle
+                    fragmentos = split_text(respuesta_ia)
+                    
+                    for i, frag in enumerate(fragmentos):
+                        if i == 0:
+                            ultimo_mensaje_bot = await mensaje_usuario.reply(frag)
+                        else:
+                            ultimo_mensaje_bot = await interaction.channel.send(frag)
 
                 except asyncio.TimeoutError:
                     await interaction.followup.send(f"⏳ {interaction.user.mention}, se acabó el tiempo.")
@@ -200,7 +220,14 @@ class Games(commands.Cog):
 
         insulto = await self.ai.generate_response(system, prompt)
         
-        await interaction.followup.send(f"🔥 **ROAST PARA {usuario.mention}:**\n\n{insulto}")
+        texto_final = f"🔥 **ROAST PARA {usuario.mention}:**\n\n{insulto}"
+        fragmentos = split_text(texto_final)
+
+        for i, frag in enumerate(fragmentos):
+            if i == 0:
+                await interaction.followup.send(frag)
+            else:
+                await interaction.channel.send(frag)
     
     # /joke
     @app_commands.command(name="joke", description="Cuenta un chiste sobre un tema opcional")
@@ -211,7 +238,13 @@ class Games(commands.Cog):
         prompt = f"Cuenta un chiste sobre: {tema}"
         
         response = await self.ai.generate_response(system, prompt)
-        await interaction.followup.send(response)
+        
+        fragmentos = split_text(response)
+        for i, frag in enumerate(fragmentos):
+            if i == 0:
+                await interaction.followup.send(frag)
+            else:
+                await interaction.channel.send(frag)
         
     # /horoscopo
     @app_commands.command(name="horoscopo", description="Tu predicción diaria (inventada por IA)")
@@ -222,8 +255,18 @@ class Games(commands.Cog):
         system = "Eres una adivina mística y un poco dramática. Genera un horóscopo breve, divertido y surrealista para hoy."
         response = await self.ai.generate_response(system, f"Signo: {signo}")
         
-        embed = discord.Embed(title=f"🔮 Horóscopo: {signo.capitalize()}", description=response, color=0x9b59b6)
-        await interaction.followup.send(embed=embed)
+        # Lógica híbrida: Si cabe en Embed usa Embed, si es gigante usa split_text
+        if len(response) < 4000:
+            embed = discord.Embed(title=f"🔮 Horóscopo: {signo.capitalize()}", description=response, color=0x9b59b6)
+            await interaction.followup.send(embed=embed)
+        else:
+            # Si la IA alucina y escribe un libro, lo enviamos como texto plano dividido
+            fragmentos = split_text(f"🔮 **Horóscopo para {signo.capitalize()}**\n\n{response}")
+            for i, frag in enumerate(fragmentos):
+                if i == 0:
+                    await interaction.followup.send(frag)
+                else:
+                    await interaction.channel.send(frag)
 
 async def setup(bot):
     await bot.add_cog(Games(bot))
